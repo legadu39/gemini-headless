@@ -1,0 +1,69 @@
+# Configuration principale pour gemini-headless
+
+# --- Connexion ---
+proxy: null     # ou "http://user:pass@host:port"
+cdp_url: null   # ou "ws://127.0.0.1:9222/devtools/browser/..." (prioritaire si défini)
+
+# --- Comportement Navigateur ---
+autospawn:
+  enable: true          # Autoriser le lancement d'un nouveau navigateur si cdp_url n'est pas fourni
+  timeout_s: 30         # Timeout pour le lancement/connexion initial
+  headless: false       # Mettre à true pour cacher le navigateur (sauf si --login ou --debug-selectors)
+  # chemins possibles pour trouver chrome/edge/brave (utilisé si get_browser_executable_path échoue)
+  binary_candidates:
+    - 'C:\Program Files\Google\Chrome\Application\chrome.exe'
+    - 'C:\Program Files (x86)\Google\Chrome\Application\chrome.exe'
+    - 'C:\Program Files\Microsoft\Edge\Application\msedge.exe'
+    - 'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe'
+    - 'C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe'
+
+# --- Fingerprint & Anti-détection ---
+fingerprint:
+  ua_policy: "stable"     # Politique de User-Agent: "stable" (réutilise celui du profil) ou "random"
+  timezone: "Europe/Paris" # Fuseau horaire (utilisé par fingerprint.py et arguments chromium)
+  locale: "fr-FR"          # Langue principale
+  languages: ["fr-FR", "fr", "en-US;q=0.9", "en;q=0.8"] # Liste pour navigator.languages
+  viewport: [1366, 768]    # Taille de la fenêtre [largeur, hauteur]
+  # platform: "Win32"      # (Optionnel, fingerprint.py a une valeur par défaut)
+  # webgl_vendor: "Intel Inc." # (Optionnel, stealth_injector.py a une valeur par défaut)
+  # webgl_renderer: "ANGLE (Intel)" # (Optionnel, stealth_injector.py a une valeur par défaut)
+
+# --- Profil Sandbox ---
+# SANDBOX_BASE_DIR et SANDBOX_COOKIE_KEY sont gérés par variables d'environnement
+# SANDBOX_NO_PERSIST peut aussi être une variable d'environnement ("1" pour activer)
+sandbox:
+  no_persist_default: false # Mettre à true pour désactiver la persistance des cookies par défaut
+
+# --- Interaction UI (Input & Upload) ---
+# Timeouts en millisecondes
+input:
+  # Ces valeurs concernent surtout fast_send_prompt, l'upload a ses propres timeouts plus longs
+  wait_ms: 800           # Budget localisation pour fast_send_prompt (non utilisé directement par upload)
+  abort_ms: 1800         # Timeout total pour fast_send_prompt (non utilisé directement par upload)
+  inject_mode: "type"    # "block" (fill) ou "type" (keyboard.type) - Préférer "type" pour robustesse
+
+# Sélecteurs pour le bouton d'upload (utilisés par collect_cli.py si --upload-selector n'est pas fourni)
+# Mettre les sélecteurs les plus probables/stables en premier.
+# Utilisez --debug-selectors pour trouver les sélecteurs spécifiques à votre version/langue de Gemini.
+upload_selectors:
+  - 'button[aria-label*="Joindre"][aria-label*="fichier"]' # Exemple FR (aria-label) - robuste
+  - 'button[aria-label*="Attach"][aria-label*="file"]'    # Exemple EN (aria-label) - robuste
+  - 'button:has(mat-icon[svgicon="attach_file"])'       # Structure interne fréquente (Material Icon)
+  - 'button[data-testid="attach-file-button"]'         # Test ID potentiel (si l'UI en utilise)
+  - 'button:has-text("Joindre")'                       # Texte FR (moins fiable si le texte change)
+  - 'button:has-text("Attach")'                        # Texte EN (moins fiable si le texte change)
+  # - "#votre-selecteur-copie-ici" # Décommentez et remplacez par votre sélecteur si besoin
+
+# --- Collecte Orchestrateur ---
+orchestrator:
+  hard_timeout_ms: 150000  # Timeout total de l'orchestrateur (8 minutes par défaut) - Peut être écrasé par --timeout-ms
+  seen_guard_ms: 10000      # Délai avant d'accepter DOM si réseau vu (GH_STRICT_PLUS_MS)
+  # max_bytes: 262144       # Limite de taille buffer (par défaut dans le code)
+
+# --- Nettoyage (Cleaner) ---
+cleaner:
+  drop_boilerplate: true    # Activer/désactiver suppression boilerplate (CLEANER_DROP_BOILERPLATE=1/0)
+  ui_strict: true           # Filtrage UI plus agressif (CLEANER_UI_STRICT=1/0)
+  close_odd_fence: true     # Ajouter ``` si manquant à la fin (CLEANER_CLOSE_ODD_FENCE=1/0)
+  fuzzy_jaccard: 0.92       # Seuil similarité pour déduplication floue (CLEANER_FUZZY_JACCARD)
+  # original_prompt_env: "CLEANER_ORIGINAL_PROMPT" # Nom variable d'env pour prompt (optionnel)

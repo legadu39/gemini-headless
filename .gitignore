@@ -1,2 +1,35 @@
-# Profils Playwright
+# Profils Playwright / Chrome
 profils_sandbox/
+**/profils_sandbox/
+chrome_user_data/
+user_data/
+*.json
+
+# Caches / Logs
+__pycache__/
+*.log
+*.tmp
+*.bak
+*.db
+cache/
+logs/
+var/
+output/
+tmp/
+ready/
+downloads/
+
+# Environnements virtuels
+.env
+.venv/
+venv/
+ENV/
+
+# Fichiers de dev
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+desktop.ini

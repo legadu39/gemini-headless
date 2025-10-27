@@ -1,0 +1,38 @@
+[project]
+name = "gemini-headless"
+version = "0.2.0" # Incrémenter la version
+description = "Headless Gemini connector packaged as a low-latency Python library (singleton engine, cache, batch, health)."
+requires-python = ">=3.10"
+dependencies = [
+  "playwright>=1.46", # Garder Playwright à jour
+]
+
+# Dépendances optionnelles pour fonctionnalités avancées
+[project.optional-dependencies]
+encryption = ["cryptography>=40.0"] # Pour le chiffrement des cookies
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+# Lister tous les packages et sous-packages
+packages = [
+    "gemini_headless",
+    "gemini_headless.collect",
+    "gemini_headless.collect.filters",
+    "gemini_headless.collect.producers",
+    "gemini_headless.collect.utils",
+    "gemini_headless.connectors",
+    "gemini_headless.utils",
+]
+include-package-data = true
+
+# Configuration pour mypy ou autres outils si nécessaire
+# [tool.mypy]
+# ...
+
+# Configuration pour ruff ou black pour le formatage
+# [tool.black]
+# line-length = 88
+# ...
